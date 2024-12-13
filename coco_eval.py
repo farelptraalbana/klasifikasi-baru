@@ -190,15 +190,6 @@ def create_common_coco_eval(coco_eval, img_ids, eval_imgs):
     coco_eval.params.imgIds = img_ids
     coco_eval._paramsEval = copy.deepcopy(coco_eval.params)
 
-
-#################################################################
-# From pycocotools, just removed the prints and fixed
-# a Python3 bug about unicode not defined
-#################################################################
-
-# Ideally, pycocotools wouldn't have hard-coded prints
-# so that we could avoid copy-pasting those two functions
-
 def createIndex(self):
     # create index
     # print('creating index...')

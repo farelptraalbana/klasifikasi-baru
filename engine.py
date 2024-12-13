@@ -118,17 +118,17 @@ def evaluate(model, data_loader, device, labels_dict):
     coco_evaluator.summarize()
     
     # extract and print mAP specifically
-    stats = coco_evaluator.stats  
-    mAP = stats[0]  # mAP biasanya berada di indeks 0
-    print(f"mAP : {mAP:.3f}")
+    #stats = coco_evaluator.stats  
+    #mAP = stats[0]  # mAP biasanya berada di indeks 0
+    #print(f"mAP : {mAP:.3f}")
     
     # coco_evaluator.coco_eval object contains AP per class
-    precisions = coco_evaluator.coco_eval.eval['precision']
+    #precisions = coco_evaluator.coco_eval.eval['precision']
 
     # Assuming you have labels_dict that maps class index to class name
-    for class_id, class_name in labels_dict.items():
-        ap = precisions[0, :, class_id, 0, -1].mean() 
-        print(f"AP for {class_name}: {ap:.3f}")
+    #for class_id, class_name in labels_dict.items():
+        #ap = precisions[0, :, class_id, 0, -1].mean() 
+        #print(f"AP for {class_name}: {ap:.3f}")
 
     # Menghitung dan menampilkan confusion matrix
     conf_matrix = confusion_matrix(all_true_labels, all_pred_labels)
