@@ -190,6 +190,15 @@ def create_common_coco_eval(coco_eval, img_ids, eval_imgs):
     coco_eval.params.imgIds = img_ids
     coco_eval._paramsEval = copy.deepcopy(coco_eval.params)
 
+
+#################################################################
+# From pycocotools, just removed the prints and fixed
+# a Python3 bug about unicode not defined
+#################################################################
+
+# Ideally, pycocotools wouldn't have hard-coded prints
+# so that we could avoid copy-pasting those two functions
+
 def createIndex(self):
     # create index
     # print('creating index...')
@@ -330,4 +339,10 @@ def evaluate(self):
     # this is NOT in the pycocotools code, but could be done outside
     evalImgs = np.asarray(evalImgs).reshape(len(catIds), len(p.areaRng), len(p.imgIds))
     self._paramsEval = copy.deepcopy(self.params)
+    # toc = time.time()
+    # print('DONE (t={:0.2f}s).'.format(toc-tic))
     return p.imgIds, evalImgs
+
+#################################################################
+# end of straight copy from pycocotools, just removing the prints
+#################################################################

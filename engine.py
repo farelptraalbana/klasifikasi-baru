@@ -2,9 +2,6 @@ import math
 import sys
 import time
 import torch
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 import torchvision.models.detection.mask_rcnn
 
@@ -69,7 +66,7 @@ def _get_iou_types(model):
 
 
 @torch.no_grad()
-def evaluate(model, data_loader, device, labels_dict):
+def evaluate(model, data_loader, device):
     n_threads = torch.get_num_threads()
     torch.set_num_threads(1)
     cpu_device = torch.device("cpu")
@@ -80,9 +77,6 @@ def evaluate(model, data_loader, device, labels_dict):
     coco = get_coco_api_from_dataset(data_loader.dataset)
     iou_types = _get_iou_types(model)
     coco_evaluator = CocoEvaluator(coco, iou_types)
-
-    all_true_labels = []  # Untuk menyimpan semua label ground truth
-    all_pred_labels = []  # Untuk menyimpan semua label prediksi
 
     for image, targets in metric_logger.log_every(data_loader, 100, header):
         image = list(img.to(device) for img in image)
@@ -101,11 +95,6 @@ def evaluate(model, data_loader, device, labels_dict):
         evaluator_time = time.time() - evaluator_time
         metric_logger.update(model_time=model_time, evaluator_time=evaluator_time)
 
-        # Mengumpulkan label ground truth dan prediksi
-        for target, output in zip(targets, outputs):
-            all_true_labels.extend(target['labels'].cpu().numpy())
-            all_pred_labels.extend(output['labels'].cpu().numpy())
-
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
     print("Averaged stats:", metric_logger)
@@ -113,35 +102,6 @@ def evaluate(model, data_loader, device, labels_dict):
 
     # accumulate predictions from all images
     coco_evaluator.accumulate()
-    
-    # summarize metrics and print mAP
     coco_evaluator.summarize()
-    
-    # extract and print mAP specifically
-    #stats = coco_evaluator.stats  
-    #mAP = stats[0]  # mAP biasanya berada di indeks 0
-    #print(f"mAP : {mAP:.3f}")
-    
-    # coco_evaluator.coco_eval object contains AP per class
-    #precisions = coco_evaluator.coco_eval.eval['precision']
-
-    # Assuming you have labels_dict that maps class index to class name
-    #for class_id, class_name in labels_dict.items():
-        #ap = precisions[0, :, class_id, 0, -1].mean() 
-        #print(f"AP for {class_name}: {ap:.3f}")
-
-    # Menghitung dan menampilkan confusion matrix
-    conf_matrix = confusion_matrix(all_true_labels, all_pred_labels)
-    print("Confusion Matrix:")
-    print(conf_matrix)
-
-    # Menyimpan confusion matrix sebagai gambar
-    plt.figure(figsize=(10, 8))
-    disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=list(labels_dict.values()))
-    disp.plot(cmap=plt.cm.Blues)
-    plt.title('Confusion Matrix')
-    plt.savefig('saved_model/confussion_matrix.png')
-    plt.close()
-
     torch.set_num_threads(n_threads)
     return coco_evaluator
